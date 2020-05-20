@@ -30,6 +30,7 @@ let ini: Inews = {
 
 function App() {
   const [news, setNews] = useState(ini);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const url = 'http://newsapi.org/v2/top-headlines?' +
@@ -39,9 +40,13 @@ function App() {
     let req = new Request(url);
     fetch(req)
       .then(async (response) => {
-        setNews(await response.json());
+        if (response.status !== 429) {
+          setNews(await response.json());
+        } else {
+          setMessage("リクエスト数が上限を超えました");
+        }
       })
-  },[])
+  }, [])
 
   return (
     <>
@@ -49,6 +54,7 @@ function App() {
       {news.articles.map((article, index) => {
         return (<img src={article.urlToImage} alt={article.title} key={index} ></img>)
       })}
+      {message}
     </>
   );
 }
