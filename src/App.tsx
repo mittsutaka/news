@@ -1,25 +1,55 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import Header from "./components/header";
+import config from "./config";
+
+interface Inews {
+  status: string,
+  totalResults: number,
+  articles: Iarticle[]
+}
+
+interface Iarticle {
+  source: {
+    id: string,
+    name: string
+  },
+  author: string,
+  title: string,
+  description: string,
+  url: string,
+  urlToImage: string,
+  publishedAt: Date,
+  content: string
+}
+
+let ini: Inews = {
+  status: "",
+  totalResults: 0,
+  articles: []
+};
 
 function App() {
+  const [news, setNews] = useState(ini);
+
+  useEffect(() => {
+    const url = 'http://newsapi.org/v2/top-headlines?' +
+      'country=us&' +
+      `apiKey=${config.NEW_API_KEY}`;
+
+    let req = new Request(url);
+    fetch(req)
+      .then(async (response) => {
+        setNews(await response.json());
+      })
+  },[])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Header />
+      {news.articles.map((article, index) => {
+        return (<img src={article.urlToImage} alt={article.title} key={index} ></img>)
+      })}
+    </>
   );
 }
 
